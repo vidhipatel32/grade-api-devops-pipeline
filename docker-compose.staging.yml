@@ -1,0 +1,21 @@
+services:
+  grade-api:
+    image: grade-api:${BUILD_NUMBER:-latest}
+    container_name: grade-api-staging
+    ports:
+      - "5001:5000"
+    environment:
+      - FLASK_ENV=staging
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - grade-network
+
+networks:
+  grade-network:
+    driver: bridge

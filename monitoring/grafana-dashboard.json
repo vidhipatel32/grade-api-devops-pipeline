@@ -1,0 +1,86 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Grade API Monitoring",
+    "tags": ["grade-api"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Total Requests",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(app_request_count_total)",
+            "legendFormat": "Total Requests"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Request Rate (per minute)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+        "targets": [
+          {
+            "expr": "rate(app_request_count_total[1m]) * 60",
+            "legendFormat": "{{method}} {{endpoint}} {{status}}"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Error Rate",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(rate(app_request_count_total{status='500'}[5m]))",
+            "legendFormat": "Errors/sec"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Grade Calculations Total",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "grade_calculation_total",
+            "legendFormat": "Grade Calculations"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "95th Percentile Latency",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(app_request_latency_seconds_bucket[5m]))",
+            "legendFormat": "p95 latency - {{endpoint}}"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "App Status",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+        "targets": [
+          {
+            "expr": "up{job='grade-api'}",
+            "legendFormat": "Up"
+          }
+        ]
+      }
+    ],
+    "refresh": "10s",
+    "schemaVersion": 27,
+    "version": 1
+  },
+  "overwrite": true
+}

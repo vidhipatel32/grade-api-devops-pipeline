@@ -1,0 +1,29 @@
+groups:
+  - name: grade-api-alerts
+    rules:
+      - alert: AppDown
+        expr: up{job="grade-api"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Grade API is down"
+          description: "The grade-api service has been unreachable for more than 30 seconds."
+
+      - alert: HighErrorRate
+        expr: rate(app_request_count_total{status="500"}[5m]) > 0.1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "More than 10% of requests are returning 500 errors."
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(app_request_latency_seconds_bucket[5m])) > 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High request latency"
+          description: "95th percentile latency is above 1 second."

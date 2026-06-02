@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+coverage.xml
+test-results.xml
+*.log
+*.txt
+!requirements.txt
+!README.md
+.git/
+.venv/
+monitoring/
+docker-compose*.yml
+Jenkinsfile
+test_app.py
+requirements-dev.txt

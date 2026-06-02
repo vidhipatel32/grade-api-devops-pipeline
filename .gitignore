@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+*.egg-info/
+dist/
+build/
+.coverage
+*.xml
+*.txt
+*report.json
+!requirements.txt
+!requirements-dev.txt
+!README.md
+.env

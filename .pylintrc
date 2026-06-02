@@ -1,0 +1,15 @@
+[MASTER]
+ignore=test_app.py
+
+[MESSAGES CONTROL]
+disable=C0114,C0115,C0116
+
+[FORMAT]
+max-line-length=100
+
+[DESIGN]
+max-args=6
+max-locals=15
+
+[SIMILARITIES]
+min-similarity-lines=5
