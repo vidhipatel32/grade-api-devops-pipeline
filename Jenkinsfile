@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        disableConcurrentBuilds()
+    }
+
     environment {
         APP_NAME        = 'grade-api'
         DOCKER_IMAGE    = 'grade-api'
@@ -9,6 +13,7 @@ pipeline {
         RELEASE_VERSION = "v1.0.${BUILD_NUMBER}"
         STAGING_PROJECT = 'grade-api-staging'
         PROD_PROJECT    = 'grade-api-prod'
+        DOCKER_CONFIG   = "${WORKSPACE}\\.docker"
     }
 
     stages {
@@ -27,6 +32,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Building Docker image ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                bat 'if not exist "%DOCKER_CONFIG%" mkdir "%DOCKER_CONFIG%"'
                 bat "docker build --pull -t ${DOCKER_IMAGE}:${BUILD_NUMBER} -t ${DOCKER_IMAGE}:latest ."
                 bat """
                     echo Image: %DOCKER_IMAGE%:%BUILD_NUMBER% > build-metadata.txt
