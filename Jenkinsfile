@@ -97,6 +97,7 @@ pipeline {
                         aquasec/trivy:latest fs ^
                         --severity HIGH,CRITICAL ^
                         --scanners vuln,secret,misconfig ^
+                        --skip-version-check ^
                         --format json ^
                         --output /workspace/trivy-fs-report.json ^
                         /workspace
@@ -114,14 +115,14 @@ pipeline {
                 echo "Deploying ${DOCKER_IMAGE}:${BUILD_NUMBER} to staging on port ${STAGING_PORT}"
                 bat "docker compose -p ${STAGING_PROJECT} -f docker-compose.staging.yml down --remove-orphans || exit /b 0"
                 bat "docker compose -p ${STAGING_PROJECT} -f docker-compose.staging.yml up -d"
-                bat 'timeout /t 20 /nobreak > nul'
+                bat 'powershell -NoProfile -Command "Start-Sleep -Seconds 20"'
             }
         }
 
         stage('Staging Smoke Test') {
             steps {
                 echo 'Verifying staging health endpoint...'
-                bat "powershell -NoProfile -Command \"Invoke-WebRequest -UseBasicParsing http://localhost:${STAGING_PORT}/health | Select-Object -ExpandProperty StatusCode\""
+                bat "curl.exe -f -s http://localhost:${STAGING_PORT}/health"
             }
         }
 
@@ -150,17 +151,17 @@ pipeline {
                 echo "Deploying release ${RELEASE_VERSION} to production on port ${PROD_PORT}"
                 bat "docker compose -p ${PROD_PROJECT} -f docker-compose.production.yml down --remove-orphans || exit /b 0"
                 bat "docker compose -p ${PROD_PROJECT} -f docker-compose.production.yml up -d"
-                bat 'timeout /t 30 /nobreak > nul'
-                bat "powershell -NoProfile -Command \"Invoke-WebRequest -UseBasicParsing http://localhost:${PROD_PORT}/health | Select-Object -ExpandProperty StatusCode\""
+                bat 'powershell -NoProfile -Command "Start-Sleep -Seconds 30"'
+                bat "curl.exe -f -s http://localhost:${PROD_PORT}/health"
             }
         }
 
         stage('Monitoring') {
             steps {
                 echo 'Verifying Prometheus, Alertmanager, Grafana, and application metrics...'
-                bat "powershell -NoProfile -Command \"Invoke-WebRequest -UseBasicParsing http://localhost:9090/-/healthy | Select-Object -ExpandProperty StatusCode\""
-                bat "powershell -NoProfile -Command \"Invoke-WebRequest -UseBasicParsing http://localhost:9093/-/healthy | Select-Object -ExpandProperty StatusCode\""
-                bat "powershell -NoProfile -Command \"Invoke-WebRequest -UseBasicParsing http://localhost:${PROD_PORT}/metrics | Select-Object -ExpandProperty StatusCode\""
+                bat 'curl.exe -f -s http://localhost:9090/-/healthy'
+                bat 'curl.exe -f -s http://localhost:9093/-/healthy'
+                bat "curl.exe -f -s http://localhost:${PROD_PORT}/metrics"
                 echo 'Grafana: http://localhost:3000 (admin / admin123)'
                 echo 'Prometheus: http://localhost:9090'
                 echo 'Alertmanager: http://localhost:9093'
